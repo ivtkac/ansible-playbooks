@@ -1,0 +1,11 @@
+---
+- name: Update all packages
+  ansible.builtin.apt:
+    update_cache: true
+
+- name: Upgrade all packages
+  ansible.builtin.apt:
+    upgrade: true
+  notify:
+    - "Restart server"
+    - "Wait for server to restart"

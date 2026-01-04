@@ -1,0 +1,13 @@
+---
+- name: Restart Server
+  ansible.builtin.reboot:
+    reboot_timeout: 300
+    pre_reboot_delay: 5
+
+- name: Wait for server to restart
+  ansible.builtin.wait_for:
+    host: "{{ inventory_hostname }}"
+    port: 22
+    delay: 10
+  delegate_to: localhost
+  become: false
