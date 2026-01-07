@@ -1,0 +1,33 @@
+---
+- name: Create directory for site
+  ansible.builtin.file:
+    path: /var/www/{{ wordpress_host }}
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: "0755"
+
+- name: Check the file
+  ansible.builtin.stat:
+    path: /var/www/{{ wordpress_host }}/wp-settings.php
+  register: wordpress_file_check
+
+- name: Download and extract wordpess archive
+  ansible.builtin.unarchive:
+    src: https://wordpress.org/latest.tar.gz
+    dest: /var/www/{{ wordpress_host }}
+    remote_src: true
+    extra_opts:
+      - "--strip-components=1"
+    creates: /var/www/{{ wordpress_host }}/wp-settings.php
+  when: not wordpress_file_check.stat.exists
+
+- name: Configure wordpress
+  ansible.builtin.template:
+    src: wp-config.php.j2
+    dest: /var/www/{{ wordpress_host }}/wp-config.php
+    owner: www-data
+    group: www-data
+    mode: "0644"
+    backup: yes
+    validate: "php -l %s"
