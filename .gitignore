@@ -1,0 +1,4 @@
+.vagrant/
+.ansible/
+.vscode/
+host_vars/
