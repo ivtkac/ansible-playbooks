@@ -1,0 +1,28 @@
+---
+- name: Update server
+  roles: [server]
+  hosts: all
+  become: true
+
+- name: Install php
+  roles: [php]
+  hosts: all
+  become: true
+
+- name: Install mariadb
+  roles: [mysql]
+  hosts: all
+  become: true
+
+- name: Install nginx
+  roles: [nginx]
+  hosts: all
+  become: true
+
+- name: Install wordpress
+  roles: [wordpress]
+  hosts: all
+  vars:
+    nginx_configured: true
+    php_version: 8.3
+  become: true
