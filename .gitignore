@@ -2,3 +2,5 @@
 .ansible/
 .vscode/
 host_vars/
+ansible.cfg
+inventory.ini
