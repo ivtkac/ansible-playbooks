@@ -1,5 +1,5 @@
 ---
-- name: Restart Server
+- name: Restart server
   ansible.builtin.reboot:
     reboot_timeout: 300
     pre_reboot_delay: 5

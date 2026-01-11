@@ -7,7 +7,8 @@
       - python3-pymysql
     state: present
     update_cache: true
-  notify: "Start and enabled MariaDb"
+  notify: "Start and enable MariaDB"
+  become: true
 
 - name: Set root password for MariaDB
   community.mysql.mysql_user:
@@ -16,12 +17,27 @@
     login_unix_socket: /var/run/mysqld/mysqld.sock
     check_implicit_admin: true
     state: present
+  become: true
+
+- name: Remove all anonymous user accounts
+  community.mysql.mysql_user:
+    name: ""
+    state: absent
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
+
+- name: Remove the MariaDB test database
+  community.mysql.mysql_db:
+    name: test
+    state: absent
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
 
 - name: Create MariaDB databses
   community.mysql.mysql_db:
     name: "{{ item.name }}"
-    encoding: "{{ item.encoding | default('utf8') }}"
-    collation: "{{ item.collation | default('utf8_general_ci') }}"
+    encoding: "{{ item.encoding | default('utf8mb4') }}"
+    collation: "{{ item.collation | default('utf8mb4_general_ci') }}"
     login_user: root
     login_password: "{{ mysql_root_password }}"
     state: present
