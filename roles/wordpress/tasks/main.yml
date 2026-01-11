@@ -29,5 +29,9 @@
     owner: www-data
     group: www-data
     mode: "0644"
-    backup: yes
+    backup: true
     validate: "php -l %s"
+
+- name: Include Nginx configuration tasks
+  ansible.builtin.include_tasks: configure_nginx.yml
+  when: nginx_configured | default(false)

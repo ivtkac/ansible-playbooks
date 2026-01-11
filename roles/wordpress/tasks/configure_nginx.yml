@@ -1,0 +1,23 @@
+---
+- name: Configure nginx
+  ansible.builtin.template:
+    src: wordpress.conf.j2
+    dest: /etc/nginx/sites-available/{{ wordpress_host }}
+    owner: root
+    group: root
+    mode: "0644"
+    backup: true
+
+- name: Enable nginx site
+  ansible.builtin.file:
+    src: /etc/nginx/sites-available/{{ wordpress_host }}
+    dest: /etc/nginx/sites-enabled/{{ wordpress_host }}
+    state: link
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Restart nginx
+  ansible.builtin.service:
+    name: nginx
+    state: restarted
