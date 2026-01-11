@@ -3,4 +3,20 @@
   ansible.builtin.apt:
     name: nginx
     state: present
-  notify: "Restart and enable nginx"
+  notify: "Start and enable nginx"
+
+- name: Copy default sites
+  ansible.builtin.template:
+    src: default.conf.j2
+    dest: /etc/nginx/sites-available/default
+    owner: root
+    group: root
+    mode: "0644"
+  notify: "Reload nginx"
+
+- name: Enable default site
+  ansible.builtin.file:
+    path: /etc/nginx/sites-enabled/default
+    state: link
+    src: /etc/nginx/sites-available/default
+  notify: "Reload nginx"
