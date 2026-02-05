@@ -1,0 +1,12 @@
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    {{ eth_link }}:
+      dhcp4: no
+      addresses:
+        - {{ public_ip }}
+      gateway4: {{ gateway }}
+      nameservers:
+        addresses:
+          - 8.8.8.8

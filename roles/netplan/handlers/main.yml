@@ -1,0 +1,4 @@
+---
+- name: Apply netplan config
+  ansible.builtin.shell: |
+    netplan apply
