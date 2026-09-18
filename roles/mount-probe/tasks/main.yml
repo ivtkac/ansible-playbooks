@@ -1,0 +1,48 @@
+---
+- name: Activate LVM volume groups
+  command: vgchange -ay
+  register: vgchange_result
+  changed_when: "' activated' in vgchange_result.stdout"
+  failed_when: false
+
+- name: Collect candidate partitions
+  command: lsblk -Jo PATH,TYPE,FSTYPE
+  register: lsblk_json
+
+- name: Set fact for candidate partitions
+  set_fact:
+    candidate_partitions: "{{ lsblk_json.stdout | from_json }}"
+
+- name: Build list
+  set_fact:
+    os_partitions: >-
+      {{
+        candidate_partitions.blockdevices
+        | selectattr('type', 'in', ['part', 'lvm'])
+        | selectattr('fstype', 'defined')
+        | rejectattr('fstype', 'equalto', '')
+        | rejectattr('fstype', 'match', 'swap|vfat')
+        | map(attribute='path')
+        | list
+      }}
+
+- name: Abort if we have nothing to probe
+  assert:
+    that: os_partitions | length > 0
+    fail_msg: "No partitions with a Linux filesystem were found."
+
+- name: Ensure probe mountpoint exists
+  file:
+    path: "{{ probe_mount }}"
+    state: directory
+
+- name: Include probe tasks for each partition
+  include_tasks: probe.yml
+  loop: "{{ os_partitions }}"
+  loop_control:
+    loop_var: item
+  when: detected_root is not defined
+
+- name: Log detected root
+  debug:
+    var: detected_root

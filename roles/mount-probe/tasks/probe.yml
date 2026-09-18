@@ -1,0 +1,34 @@
+---
+- name: Probe partition "{{ item }}"
+  block:
+    - name: "Mount {{ item }} read-only"
+      ansible.posix.mount:
+        src: "{{ item }}"
+        path: "{{ probe_mount }}"
+        state: mounted
+        opts: ro
+        fstype: auto
+
+    - name: Check for os-release
+      stat:
+        path: /etc/os-release
+      register: os_release
+
+    - name: Record successful probe
+      set_fact:
+        detected_root: "{{ item }}"
+      when: os_release.stat.exists
+
+  rescue:
+    - name: Unmount after failure
+      ansible.posix.mount:
+        path: "{{ probe_mount }}"
+        state: unmounted
+      failed_when: false
+
+  always:
+    - name: "Unmount candidate {{ item }}"
+      ansible.posix.mount:
+        path: "{{ probe_mount }}"
+        state: unmounted
+      failed_when: false
